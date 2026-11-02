@@ -8,6 +8,8 @@ if ($id === false || $id === null || $id < 1) {
 
 $sql = 'SELECT song_id, title, artist, is_favorite FROM songs WHERE song_id = :id';
 $statement = $db->prepare($sql);
+// ':id' is a placeholder
+// Safer
 $statement->execute([':id' => $id]);
 $song = $statement->fetch();
 

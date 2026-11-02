@@ -5,6 +5,7 @@ $password = '';
 
 try {
     $db = new PDO($dsn, $username, $password, [
+        // '::' means static
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
         // Makes fetch() and fetchAll() return rows keyed by column name,
         // such as $song['title'], without specifying PDO::FETCH_ASSOC each time.

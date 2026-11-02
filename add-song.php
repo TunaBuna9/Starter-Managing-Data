@@ -13,6 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Provided input checks keep this lesson focused on database statements.
     $title = trim($_POST['title']);
     $artist = trim($_POST['artist']);
+    // If it is 1 , it's one, if it's mpty (unchecked), it becomes zero)
     $isFavorite = isset($_POST['is_favorite']) ? 1 : 0;
 
     if ($title === '') {
@@ -26,8 +27,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Collect the validated values into one Song object.
         $song = new Song($title, $artist, (bool) $isFavorite);
         addSong($db, $song);
-        // header('Location: add-song.php');
-        // exit;
+
+        // REloads page, but as a get request - differnt from a regular refresh
+        // header(Locations: 'page.index')
+        header('Location: add-song.php');
+        exit;
     }
 }
 ?>

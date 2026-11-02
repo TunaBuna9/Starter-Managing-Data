@@ -24,3 +24,4 @@ INSERT INTO songs (title, artist, is_favorite) VALUES
 ('Rolling in the Deep', 'Adele', 0),
 ('Dynamite', 'BTS', 0),
 ('Anti-Hero', 'Taylor Swift', 1);
+
