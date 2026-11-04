@@ -1,4 +1,5 @@
 <?php
+declare (strict_types=1);
 require __DIR__ . '/includes/database.php';
 require_once __DIR__ . '/classes/Song.php';
 require_once __DIR__ . '/includes/song-functions.php';
@@ -8,6 +9,46 @@ $title = '';
 $artist = '';
 $isFavorite = 0;
 $errors = [];
+
+// Fixes error someone was having
+$id = 0;
+
+$textTitle = "Add";
+
+// Day 2 Step 2
+// For edit functions, grabs id from add-song form
+// This part runs after the button is clicked
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $id = filter_input(INPUT_POST, 'song_id', FILTER_VALIDATE_INT);
+} elseif (isset($_GET['id'])) {
+    $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+}
+
+// day 2 Step 4
+// GEts song based on id
+// Checking if there is an ID (from get), only runs if it gets an Id so it can pull the records and fill in the tables.
+// If the id is not more than zero or is simply empty, they can add a song
+// There is no number you sre adding a song, if there is an id, you are updating it
+if ($id > 0) {
+    $record = getSong($db, $id);
+    if ($record === false) {
+        exit('No song has that ID.');
+    }
+
+    // Day 2 Step 6
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        $title = $record['title'];
+        $artist = $record['artist'];
+        $isFavorite = (int) $record['is_favorite'];
+    }
+
+    // Changes text title
+    $textTitle = "Edit";
+
+}
+
+
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Provided input checks keep this lesson focused on database statements.
@@ -26,33 +67,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$errors) {
         // Collect the validated values into one Song object.
         $song = new Song($title, $artist, (bool) $isFavorite);
-        addSong($db, $song);
-
-        // REloads page, but as a get request - differnt from a regular refresh
-        // header(Locations: 'page.index')
-        header('Location: add-song.php');
+        if ($id > 0) {
+            updateSong($db, $id, $song);
+            header('Location: index.php');
+        } else {
+            addSong($db, $song);
+            header('Location: add-song.php');
+        }
         exit;
     }
 }
 ?>
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Add a song</title><link rel="stylesheet" href="styles.css"></head>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Edit a song</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
 <body>
-<h1>Add a song</h1>
-<p><a href="index.php">Back to collection</a></p>
-<?php if ($errors): ?>
-<ul class="errors">
-<?php foreach ($errors as $error): ?><li><?= htmlspecialchars($error) ?></li><?php endforeach; ?>
-</ul>
-<?php endif; ?>
-<form action="add-song.php" method="post">
-    <label for="title">Song title</label>
-    <input type="text" id="title" name="title" maxlength="150" required value="<?= htmlspecialchars($title) ?>">
-    <label for="artist">Artist</label>
-    <input type="text" id="artist" name="artist" maxlength="150" required value="<?= htmlspecialchars($artist) ?>">
-    <label><input type="checkbox" name="is_favorite" value="1" <?= $isFavorite === 1 ? 'checked' : '' ?>> One of my favorites</label>
-    <p><button type="submit">Save song</button></p>
-</form>
+    <h1><?php echo $textTitle ?> a song</h1>
+    <p><a href="index.php">Back to collection</a></p>
+    <?php if ($errors): ?>
+        <ul class="errors">
+            <?php foreach ($errors as $error): ?><li><?= htmlspecialchars($error) ?></li><?php endforeach; ?>
+        </ul>
+    <?php endif; ?>
+    <form action="add-song.php" method="post">
+
+        <!-- Day 2 step 3 -->
+        <!-- Stores an Id which is hidden from the user -->
+         <!-- Change type to text for debugging -->
+        <input type="hidden" name="song_id" value="<?= $id ?>">
+
+
+        <label for="title">Song title</label>
+        <input type="text" id="title" name="title" maxlength="150" required value="<?= htmlspecialchars($title) ?>">
+        <label for="artist">Artist</label>
+        <input type="text" id="artist" name="artist" maxlength="150" required value="<?= htmlspecialchars($artist) ?>">
+        <label><input type="checkbox" name="is_favorite" value="1" <?= $isFavorite === 1 ? 'checked' : '' ?>> One of my favorites</label>
+        <p><button type="submit">Save song</button></p>
+    </form>
 </body>
+
 </html>

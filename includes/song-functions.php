@@ -22,3 +22,36 @@ function addSong(PDO $db, Song $song): void
         ':is_favorite' => $song->isFavorite ? 1 : 0,
     ]);
 }
+
+// Day 2 step 5, add function use
+function getSong(PDO $db, int $id)
+{
+    $sql = 'SELECT song_id, title, artist, is_favorite
+            FROM songs WHERE song_id = :id';
+    $statement = $db->prepare($sql);
+    $statement->execute([':id' => $id]);
+    return $statement->fetch();
+}
+
+// Upadte songs function 
+// set - valuse
+// set title- feild names in database
+// set- set prepared statements
+// MUST ADD WHERE OR IT ASSIGNS TO EVERY RECORD AND OVERWRITE EVERYTHING
+function updateSong(PDO $db, int $id, Song $song): void
+{
+    $sql = 'UPDATE songs
+            SET title = :title, artist = :artist, is_favorite = :is_favorite
+            WHERE song_id = :id';
+    $statement = $db->prepare($sql);
+    $statement->execute([
+
+        // Prepared values setting
+        ':title' => $song->title,
+        ':artist' => $song->artist,
+        ':is_favorite' => $song->isFavorite ? 1 : 0,
+        ':id' => $id,
+    ]);
+}
+
+
